@@ -53,14 +53,25 @@ def process_image(image):
 
         rho = 1
         theta = np.pi/180
-        threshold = 10
+        threshold = 120
         min_line_length = 20
+        max_line_gap = 65
+        lines = cv2.HoughLinesP(masked_edges_copy, rho, theta, threshold, np.array([]),
+                                    min_line_length, max_line_gap)
+
+        masked_edges_copy = np.copy(masked_edges)*0
+
+        draw_lines( masked_edges_copy, lines )
+
+        rho = 1
+        theta = np.pi/180
+        threshold = 140
+        min_line_length = 60
         max_line_gap = 250
         lines = cv2.HoughLinesP(masked_edges_copy, rho, theta, threshold, np.array([]),
                                     min_line_length, max_line_gap)
 
         draw_lines( line_image, lines )
-        # draw_lines(masked_edges,lines)
 
         # rho = 1 # distance resolution in pixels of the Hough grid
         # theta = np.pi/180 # angular resolution in radians of the Hough grid
