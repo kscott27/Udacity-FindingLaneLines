@@ -48,12 +48,14 @@ for imageTitle in image_list:
 	cv2.fillPoly(mask, vertices, ignore_mask_color)
 
 	masked_edges = cv2.bitwise_and(edges, mask)
+	masked_edges_copy = np.copy(masked_edges)*0
+
 	# Define the Hough transform parameters
 	# Make a blank the same size as our image to draw on
 	rho = 1 # distance resolution in pixels of the Hough grid
 	theta = np.pi/180 # angular resolution in radians of the Hough grid
-	threshold = 50     # minimum number of votes (intersections in Hough grid cell)
-	min_line_length = 5 # minimum number of pixels making up a line
+	threshold = 10     # minimum number of votes (intersections in Hough grid cell)
+	min_line_length = 8 # minimum number of pixels making up a line
 	max_line_gap = 10    # maximum gap in pixels between connectable line segments
 	line_image = np.copy(image)*0 # creating a blank to draw lines on
 
@@ -62,20 +64,20 @@ for imageTitle in image_list:
 	lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
 	                            min_line_length, max_line_gap)
 
-	rM, rX, rY, lM, lX, lY = getMeans( lines )
-	rxi, rxf, ryi, ryf, lxi, lxf, lyi, lyf = getLineEndPts( image, rM, rX, rY, lM, lX, lY )
+	# rM, rX, rY, lM, lX, lY = getMeans( lines )
+	# rxi, rxf, ryi, ryf, lxi, lxf, lyi, lyf = getLineEndPts( image, rM, rX, rY, lM, lX, lY )
 
-	# draw_lines(image,lines)
+	draw_lines( masked_edges_copy, lines )
 
-	# rho = 1
-	# theta = np.pi/180
-	# threshold = 70
-	# min_line_length = 10
-	# max_line_gap = 40
-	# lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
- #                                min_line_length, max_line_gap)
+	rho = 1
+	theta = np.pi/180
+	threshold = 10
+	min_line_length = 20
+	max_line_gap = 250
+	lines = cv2.HoughLinesP(masked_edges_copy, rho, theta, threshold, np.array([]),
+                                min_line_length, max_line_gap)
 
-	# draw_lines( masked_edges, lines )
+	draw_lines( line_image, lines )
 
 	# rho = 1
 	# theta = np.pi/180
@@ -87,8 +89,8 @@ for imageTitle in image_list:
 
 	# xiR, xfR, yiR, yfR, xiL, xfL, yiL, yfL = getLineEndPts( image, lines )
 
-	cv2.line(image,(rxi,ryi),(rxf,ryf),(255,0,0),10)
-	cv2.line(image,(xiL,yiL),(xfL,yfL),(255,0,0),10)
+	# cv2.line(image,(rxi,ryi),(rxf,ryf),(255,0,0),10)
+	# cv2.line(image,(xiL,yiL),(xfL,yfL),(255,0,0),10)
 
 	# plt.figure()
 	# plt.imshow(masked_edges)
@@ -108,10 +110,11 @@ for imageTitle in image_list:
 	# # Draw the lines on the edge image
 	# lines_edges = cv2.addWeighted(color_edges, 0.8, line_image, 1, 0) 
 
-	# finalImage = weighted_img(lines_edges, image)
+	finalImage = weighted_img(image, line_image)
+	# finalImage = masked_edges_copy
 
 	plt.figure()
-	plt.imshow(image)
+	plt.imshow(finalImage)
 	plt.savefig('../test_images_output/' + imageTitle)
 
 

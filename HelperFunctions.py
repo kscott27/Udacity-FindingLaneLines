@@ -65,7 +65,8 @@ def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
     """
     for line in lines:
         for x1,y1,x2,y2 in line:
-            cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+            if abs(y2-y1) > 20:
+                cv2.line(img, (x1, y1), (x2, y2), color, thickness)
 
 def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     """

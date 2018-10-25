@@ -27,20 +27,17 @@ def process_image(image):
         lowerRightVertex = imageWidth*0.925, imageHeight
         lowerLeftVertex = imageWidth*0.075, imageHeight
 
-        # vertices = np.array([[(540,150), (250,420), (250,460), (540,850)]], dtype=np.int32)
         vertices = np.array([[upperLeftVertex, upperRightVertex, lowerRightVertex, lowerLeftVertex]], dtype=np.int32)
-        # vertices = np.array([[(imshape[1]/2 - imshape[1]/32, imshape[0]/2 + imshape[0]/19), (850,imshape[0]/2 + imshape[0]/19), (0,imshape[0]), (imshape[1],imshape[0])]], dtype=np.int32)
-        # print (vertices)
-        #vertices = np.array([[(400,imshape[1]/2),(200, imshape[1]/2), (0,imshape[1]), (imshape[1],imshape[0])]], dtype=np.int32)
         cv2.fillPoly(mask, vertices, ignore_mask_color)
 
         masked_edges = cv2.bitwise_and(edges, mask)
+        masked_edges_copy = np.copy(masked_edges)*0
         # Define the Hough transform parameters
         # Make a blank the same size as our image to draw on
         rho = 1 # distance resolution in pixels of the Hough grid
         theta = np.pi/180 # angular resolution in radians of the Hough grid
-        threshold = 50     # minimum number of votes (intersections in Hough grid cell)
-        min_line_length = 5 # minimum number of pixels making up a line
+        threshold = 10     # minimum number of votes (intersections in Hough grid cell)
+        min_line_length = 8 # minimum number of pixels making up a line
         max_line_gap = 10    # maximum gap in pixels between connectable line segments
         line_image = np.copy(image)*0 # creating a blank to draw lines on
 
@@ -48,25 +45,39 @@ def process_image(image):
         # Output "lines" is an array containing endpoints of detected line segments
         lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
                                     min_line_length, max_line_gap)
-        draw_lines(masked_edges,lines)
 
-        rho = 1 # distance resolution in pixels of the Hough grid
-        theta = np.pi/180 # angular resolution in radians of the Hough grid
-        threshold = 70     # minimum number of votes (intersections in Hough grid cell)
-        min_line_length = 10 # minimum number of pixels making up a line
-        max_line_gap = 40    # maximum gap in pixels between connectable line segments
-        lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
-                                    min_line_length, max_line_gap)
-        draw_lines(masked_edges,lines)
+        # rM, rX, rY, lM, lX, lY = getMeans( lines )
+        # rxi, rxf, ryi, ryf, lxi, lxf, lyi, lyf = getLineEndPts( image, rM, rX, rY, lM, lX, lY )
 
-        rho = 1 # distance resolution in pixels of the Hough grid
-        theta = np.pi/180 # angular resolution in radians of the Hough grid
-        threshold = 70     # minimum number of votes (intersections in Hough grid cell)
-        min_line_length = 40 # minimum number of pixels making up a line
-        max_line_gap = 300    # maximum gap in pixels between connectable line segments
-        lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
+        draw_lines( masked_edges_copy, lines )
+
+        rho = 1
+        theta = np.pi/180
+        threshold = 10
+        min_line_length = 20
+        max_line_gap = 250
+        lines = cv2.HoughLinesP(masked_edges_copy, rho, theta, threshold, np.array([]),
                                     min_line_length, max_line_gap)
-        draw_lines(image,lines)
+
+        draw_lines( line_image, lines )
+        # draw_lines(masked_edges,lines)
+
+        # rho = 1 # distance resolution in pixels of the Hough grid
+        # theta = np.pi/180 # angular resolution in radians of the Hough grid
+        # threshold = 70     # minimum number of votes (intersections in Hough grid cell)
+        # min_line_length = 10 # minimum number of pixels making up a line
+        # max_line_gap = 40    # maximum gap in pixels between connectable line segments
+        # lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
+        #                             min_line_length, max_line_gap)
+        # draw_lines(masked_edges,lines)
+
+        # rho = 1 # distance resolution in pixels of the Hough grid
+        # theta = np.pi/180 # angular resolution in radians of the Hough grid
+        # threshold = 70     # minimum number of votes (intersections in Hough grid cell)
+        # min_line_length = 40 # minimum number of pixels making up a line
+        # max_line_gap = 300    # maximum gap in pixels between connectable line segments
+        # lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
+        #                             min_line_length, max_line_gap)
 
         # # Iterate over the output "lines" and draw lines on a blank image
         # for line in lines:
@@ -78,6 +89,6 @@ def process_image(image):
         # # Draw the lines on the edge image
         # lines_edges = cv2.addWeighted(color_edges, 0.8, line_image, 1, 0) 
 
-        # finalImage = weighted_img(lines_edges, image)
+        finalImage = weighted_img(image, line_image)
     
-        return image
+        return finalImage
