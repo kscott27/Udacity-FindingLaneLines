@@ -182,7 +182,7 @@ def getLineEndPts( image, lineList ):
                     xiLeft = x1
                 if y1 < yfLeft:
                     yfLeft = y1
-    return xiRight, xfRight, yiRight, yfRight, xiLeft, xfLeft, yiLeft, yfLeft
+    return int(xiRight), int(xfRight), int(yiRight), int(yfRight), int(xiLeft), int(xfLeft), int(yiLeft), int(yfLeft)
 
 def getLineEndPts( image, rM, rX, rY, lM, lX, lY ):
     imshape = image.shape

@@ -1,3 +1,10 @@
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import numpy as np
+import cv2
+import os
+from HelperFunctions import draw_lines, weighted_img
+
 def process_image(image):
     # NOTE: The output you return should be a color image (3 channel) for processing video below
     # TODO: put your pipeline here,
@@ -46,9 +53,6 @@ def process_image(image):
         lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
                                     min_line_length, max_line_gap)
 
-        # rM, rX, rY, lM, lX, lY = getMeans( lines )
-        # rxi, rxf, ryi, ryf, lxi, lxf, lyi, lyf = getLineEndPts( image, rM, rX, rY, lM, lX, lY )
-
         draw_lines( masked_edges_copy, lines )
 
         rho = 1
@@ -71,24 +75,12 @@ def process_image(image):
         lines = cv2.HoughLinesP(masked_edges_copy, rho, theta, threshold, np.array([]),
                                     min_line_length, max_line_gap)
 
+        # rM, rX, rY, lM, lX, lY = getMeans( lines )
+        # rxi, rxf, ryi, ryf, lxi, lxf, lyi, lyf = getLineEndPts( image, rM, rX, rY, lM, lX, lY )
+        # cv2.line(line_image,(int(rxi),int(ryi)),(int(rxf),int(ryf)),(255,0,0),10)
+        # cv2.line(line_image,(int(lxi),int(lyi)),(int(lxf),int(lyf)),(255,0,0),10)
+
         draw_lines( line_image, lines )
-
-        # rho = 1 # distance resolution in pixels of the Hough grid
-        # theta = np.pi/180 # angular resolution in radians of the Hough grid
-        # threshold = 70     # minimum number of votes (intersections in Hough grid cell)
-        # min_line_length = 10 # minimum number of pixels making up a line
-        # max_line_gap = 40    # maximum gap in pixels between connectable line segments
-        # lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
-        #                             min_line_length, max_line_gap)
-        # draw_lines(masked_edges,lines)
-
-        # rho = 1 # distance resolution in pixels of the Hough grid
-        # theta = np.pi/180 # angular resolution in radians of the Hough grid
-        # threshold = 70     # minimum number of votes (intersections in Hough grid cell)
-        # min_line_length = 40 # minimum number of pixels making up a line
-        # max_line_gap = 300    # maximum gap in pixels between connectable line segments
-        # lines = cv2.HoughLinesP(masked_edges, rho, theta, threshold, np.array([]),
-        #                             min_line_length, max_line_gap)
 
         # # Iterate over the output "lines" and draw lines on a blank image
         # for line in lines:
