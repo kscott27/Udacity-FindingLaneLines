@@ -63,10 +63,11 @@ def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
     If you want to make the lines semi-transparent, think about combining
     this function with the weighted_img() function below
     """
-    for line in lines:
-        for x1,y1,x2,y2 in line:
-            if abs(y2-y1) > 20:
-                cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+    if lines is not None:
+        for line in lines:
+            for x1,y1,x2,y2 in line:
+                if abs(y2-y1) > 10:
+                    cv2.line(img, (x1, y1), (x2, y2), color, thickness)
 
 def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     """
@@ -122,7 +123,7 @@ def extrapolateLine( lineList ):
 
     return lineList
 
-def getMeans( lineList ):
+def getMeans( image, lineList ):
     rightSlopeAggregate = 0
     leftSlopeAggregate = 0
     rightX = 0
@@ -131,28 +132,37 @@ def getMeans( lineList ):
     leftY = 0
     rCounter = 0
     lCounter = 0
-    for line in lineList:
-        for x1,y1,x2,y2 in line:
-            if x1 != x2 and (y2-y1)/(x2-x1) > 0 and abs((x1+x2)/2) > 960/2:
-                rightSlopeAggregate += (y2-y1)/(x2-x1)
-                rightX += x1 + (x2-x1)/2
-                rightY += y1 + (y2-y1)/2
-                rCounter += 1
-            elif x1 != x2 and (y2-y1)/(x2-x1) < 0 and abs((x1+x2)/2) < 960/2:
-                slope = (y2-y1)/(x2-x1)
-                leftSlopeAggregate += slope
-                leftX += x1 + (x2-x1)/2
-                leftY += y1 + (y2-y1)/2
-                lCounter += 1
+    if lineList is not None:
+        for line in lineList:
+            for x1,y1,x2,y2 in line:
+                if x1 != x2 and (y2-y1)/(x2-x1) > 0 and abs((x1+x2)/2) > 960/2:
+                    rightSlopeAggregate += (y2-y1)/(x2-x1)
+                    rightX += x1 + (x2-x1)/2
+                    rightY += y1 + (y2-y1)/2
+                    rCounter += 1
+                    # elif x1 != x2 and (y2-y1)/(x2-x1) < 0 and abs((x1+x2)/2) < 960/2:
+                    #     slope = (y2-y1)/(x2-x1)
+                    #     leftSlopeAggregate += slope
+                    #     leftX += x1 + (x2-x1)/2
+                    #     leftY += y1 + (y2-y1)/2
+                    #     lCounter += 1
 
-    rightSlope = rightSlopeAggregate/rCounter
-    rX = rightX/rCounter
-    rY = rightY/rCounter
-    leftSlope = leftSlopeAggregate/lCounter
-    lX = leftX/lCounter
-    lY = leftY/lCounter
+        rM = rightSlopeAggregate/rCounter
+        rX = rightX/rCounter
+        rY = rightY/rCounter
+        imshape = image.shape
+        imHeight = imshape[0]
+        imWidth = imshape[1]
+        ryi = imHeight
+        ryf = imHeight / 1.7
+        rxi = (imHeight - rY)/rM + rX
+        rxf = rX + (ryf - rY)/rM
+        cv2.line(image,(int(rxi),int(ryi)),(int(rxf),int(ryf)),(255,0,0),10)
+        # leftSlope = leftSlopeAggregate/lCounter
+        # lX = leftX/lCounter
+        # lY = leftY/lCounter
             
-    return rightSlope, rX, rY, leftSlope, lX, lY
+    # return rightSlope, rX, rY
 
 def getLineEndPts( image, lineList ):
     imshape = image.shape
@@ -184,17 +194,18 @@ def getLineEndPts( image, lineList ):
                     yfLeft = y1
     return int(xiRight), int(xfRight), int(yiRight), int(yfRight), int(xiLeft), int(xfLeft), int(yiLeft), int(yfLeft)
 
-def getLineEndPts( image, rM, rX, rY, lM, lX, lY ):
+def getLineEndPts( image, rM, rX, rY):
     imshape = image.shape
     imHeight = imshape[0]
     imWidth = imshape[1]
-    rxi = (imHeight - rY)/rM + rX
-    rxf = rxi - 2*(rxi - rX)
     ryi = imHeight
-    ryf = imHeight - 2*(imHeight - rY)
-    lxi = (imHeight - lY)/lM + lX
-    lxf = lxi - 2*(lxi - lX)
-    lyi = imHeight
-    lyf = imHeight - 2*(imHeight - lY)
+    ryf = imHeight / 1.7
+    rxi = (imHeight - rY)/rM + rX
+    rxf = rX + (ryf - rY)/rM
+    
+    # lxi = (imHeight - lY)/lM + lX
+    # lxf = lxi - 2*(lxi - lX)
+    # lyi = imHeight
+    # lyf = imHeight - 2*(imHeight - lY)
 
-    return rxi, rxf, ryi, ryf, lxi, lxf, lyi, lyf
+    return rxi, rxf, ryi, ryf
