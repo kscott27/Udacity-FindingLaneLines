@@ -29,8 +29,8 @@ def process_image(image):
 
         imageHeight = imshape[0]
         imageWidth = imshape[1]
-        upperLeftVertex = imageWidth/2, imageHeight/1.7
-        upperRightVertex = imageWidth/2 + imageWidth/34, imageHeight/1.7
+        upperLeftVertex = imageWidth/2, imageHeight/1.8
+        upperRightVertex = imageWidth/2 + imageWidth/34, imageHeight/1.8
         lowerRightVertex = imageWidth*0.925, imageHeight
         lowerLeftVertex = imageWidth/2, imageHeight
 
@@ -40,8 +40,8 @@ def process_image(image):
         right_masked_edges = cv2.bitwise_and(edges, right_mask)
         right_masked_edges_copy = np.copy(right_masked_edges)*0
 
-        upperLeftVertex = imageWidth/2 - imageWidth/34, imageHeight/1.7
-        upperRightVertex = imageWidth/2, imageHeight/1.7
+        upperLeftVertex = imageWidth/2 - imageWidth/34, imageHeight/1.8
+        upperRightVertex = imageWidth/2, imageHeight/1.8
         lowerRightVertex = imageWidth/2, imageHeight
         lowerLeftVertex = imageWidth*0.075, imageHeight
 

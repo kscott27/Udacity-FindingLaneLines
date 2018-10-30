@@ -135,17 +135,10 @@ def getMeans( image, lineList ):
     if lineList is not None:
         for line in lineList:
             for x1,y1,x2,y2 in line:
-                if x1 != x2 and (y2-y1)/(x2-x1) > 0 and abs((x1+x2)/2) > 960/2:
-                    rightSlopeAggregate += (y2-y1)/(x2-x1)
-                    rightX += x1 + (x2-x1)/2
-                    rightY += y1 + (y2-y1)/2
-                    rCounter += 1
-                    # elif x1 != x2 and (y2-y1)/(x2-x1) < 0 and abs((x1+x2)/2) < 960/2:
-                    #     slope = (y2-y1)/(x2-x1)
-                    #     leftSlopeAggregate += slope
-                    #     leftX += x1 + (x2-x1)/2
-                    #     leftY += y1 + (y2-y1)/2
-                    #     lCounter += 1
+                rightSlopeAggregate += (y2-y1)/(x2-x1)
+                rightX += x1 + (x2-x1)/2
+                rightY += y1 + (y2-y1)/2
+                rCounter += 1
 
         rM = rightSlopeAggregate/rCounter
         rX = rightX/rCounter
@@ -154,7 +147,7 @@ def getMeans( image, lineList ):
         imHeight = imshape[0]
         imWidth = imshape[1]
         ryi = imHeight
-        ryf = imHeight / 1.7
+        ryf = imHeight / 1.6
         rxi = (imHeight - rY)/rM + rX
         rxf = rX + (ryf - rY)/rM
         cv2.line(image,(int(rxi),int(ryi)),(int(rxf),int(ryf)),(255,0,0),10)
@@ -194,18 +187,13 @@ def getLineEndPts( image, lineList ):
                     yfLeft = y1
     return int(xiRight), int(xfRight), int(yiRight), int(yfRight), int(xiLeft), int(xfLeft), int(yiLeft), int(yfLeft)
 
-def getLineEndPts( image, rM, rX, rY):
+def getLineEndPts( image, m, x, y):
     imshape = image.shape
     imHeight = imshape[0]
     imWidth = imshape[1]
-    ryi = imHeight
-    ryf = imHeight / 1.7
-    rxi = (imHeight - rY)/rM + rX
-    rxf = rX + (ryf - rY)/rM
-    
-    # lxi = (imHeight - lY)/lM + lX
-    # lxf = lxi - 2*(lxi - lX)
-    # lyi = imHeight
-    # lyf = imHeight - 2*(imHeight - lY)
+    yi = imHeight
+    yf = imHeight / 1.5
+    xi = (imHeight - y)/m + x
+    xf = x + (yf - y)/m
 
-    return rxi, rxf, ryi, ryf
+    return xi, xf, yi, yf
