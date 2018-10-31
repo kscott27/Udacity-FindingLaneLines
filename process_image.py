@@ -3,7 +3,7 @@ import matplotlib.image as mpimg
 import numpy as np
 import cv2
 import os
-from HelperFunctions import draw_lines, weighted_img, getMeans, getLineEndPts
+from HelperFunctions import draw_lines, extrapolateLine, weighted_img
 
 def process_image(image):
     # NOTE: The output you return should be a color image (3 channel) for processing video below
@@ -98,8 +98,8 @@ def process_image(image):
         left_lines = cv2.HoughLinesP(left_masked_edges_copy, rho, theta, threshold, np.array([]),
                                     min_line_length, max_line_gap)
 
-        getMeans( line_image, right_lines )
-        getMeans( line_image, left_lines )
+        extrapolateLine( line_image, right_lines )
+        extrapolateLine( line_image, left_lines )
 
         finalImage = weighted_img(image, line_image)
     

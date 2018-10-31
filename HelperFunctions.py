@@ -96,104 +96,28 @@ def weighted_img(img, initial_img, α=0.8, β=1., γ=0.):
     """
     return cv2.addWeighted(initial_img, α, img, β, γ)
 
-def slopeSorter( initialList ):
-    leftLane = np.array([[[]]], dtype=np.int32)
-    rightLane = np.array([[[]]], dtype=np.int32)
-    for line in initialList:
-        for x1,y1,x2,y2 in line:
-            if (y2-y1)/(x2-x1) > 0:
-                rightLane = np.append(rightLane, line, axis=0)
-            else:
-                leftLane = np.append(leftLane, line, axis=0)
-                
-    return leftLane, rightLane
-
-def extrapolateLine( lineList ):
-    xiNew = 0
-    yiNew = 0
-    firstIteration = True
-    for line in lineList:
-        for x1,y1,x2,y2 in line:
-            if firstIteration == False:
-                newLine = xiNew,yiNew,x1,y1
-                lineList = np.append(lineList, newLine, axis=1)
-            xiNew = x2
-            yiNew = y2
-            firstIteration = False
-
-    return lineList
-
-def getMeans( image, lineList ):
-    rightSlopeAggregate = 0
-    leftSlopeAggregate = 0
-    rightX = 0
-    leftX = 0
-    rightY = 0
-    leftY = 0
-    rCounter = 0
-    lCounter = 0
+def extrapolateLine( image, lineList ):
+    slopeAggregate = 0
+    xTotal = 0
+    yTotal = 0
+    counter = 0
     if lineList is not None:
         for line in lineList:
             for x1,y1,x2,y2 in line:
-                rightSlopeAggregate += (y2-y1)/(x2-x1)
-                rightX += x1 + (x2-x1)/2
-                rightY += y1 + (y2-y1)/2
-                rCounter += 1
+                slopeAggregate += (y2-y1)/(x2-x1)
+                xTotal += x1 + (x2-x1)/2
+                yTotal += y1 + (y2-y1)/2
+                counter += 1
 
-        rM = rightSlopeAggregate/rCounter
-        rX = rightX/rCounter
-        rY = rightY/rCounter
+        m = slopeAggregate/counter
+        x = xTotal/counter
+        y = yTotal/counter
         imshape = image.shape
         imHeight = imshape[0]
         imWidth = imshape[1]
-        ryi = imHeight
-        ryf = imHeight / 1.6
-        rxi = (imHeight - rY)/rM + rX
-        rxf = rX + (ryf - rY)/rM
-        cv2.line(image,(int(rxi),int(ryi)),(int(rxf),int(ryf)),(255,0,0),10)
-        # leftSlope = leftSlopeAggregate/lCounter
-        # lX = leftX/lCounter
-        # lY = leftY/lCounter
-            
-    # return rightSlope, rX, rY
-
-def getLineEndPts( image, lineList ):
-    imshape = image.shape
-    imHeight = imshape[0]
-    imWidth = imshape[1]
-    xfRight = imWidth
-    xiRight = 0
-    yiRight = imHeight
-    yfRight = imHeight
-    xfLeft = 0
-    xiLeft = imWidth
-    yiLeft = imHeight
-    yfLeft = imHeight
-    for line in lineList:
-        for x1,y1,x2,y2 in line:
-            if x1 != x2 and (y2-y1)/(x2-x1) > 0 and abs((x1+x2)/2) > imWidth/2:
-                if x1 < xfRight:
-                    xfRight = x1
-                if x2 > xiRight:
-                    xiRight = x2
-                if y1 < yfRight:
-                    yfRight = y1
-            elif x1 != x2 and (y2-y1)/(x2-x1) < 0 and abs((x1+x2)/2) < imWidth/2:
-                if x2 > xfLeft:
-                    xfLeft = x2
-                if x1 < xiLeft:
-                    xiLeft = x1
-                if y1 < yfLeft:
-                    yfLeft = y1
-    return int(xiRight), int(xfRight), int(yiRight), int(yfRight), int(xiLeft), int(xfLeft), int(yiLeft), int(yfLeft)
-
-def getLineEndPts( image, m, x, y):
-    imshape = image.shape
-    imHeight = imshape[0]
-    imWidth = imshape[1]
-    yi = imHeight
-    yf = imHeight / 1.5
-    xi = (imHeight - y)/m + x
-    xf = x + (yf - y)/m
-
-    return xi, xf, yi, yf
+        yi = imHeight
+        yf = imHeight / 1.6
+        xi = (imHeight - y)/m + x
+        xf = x + (yf - y)/m
+        cv2.line(image,(int(xi),int(yi)),(int(xf),int(yf)),(255,0,0),10)
+        
